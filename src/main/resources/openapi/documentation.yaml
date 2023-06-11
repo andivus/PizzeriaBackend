@@ -6,20 +6,7 @@ info:
 servers:
 - url: "http://localhost:8080"
 paths:
-  /:
-    get:
-      description: ""
-      responses:
-        "200":
-          description: "OK"
-          content:
-            text/plain:
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Hello World!"
-  /items:
+  /api/items:
     get:
       description: ""
       responses:
@@ -52,7 +39,7 @@ paths:
             '*/*':
               schema:
                 type: "object"
-  /items/{id}:
+  /api/items/{id}:
     delete:
       description: ""
       parameters:
@@ -134,6 +121,19 @@ paths:
             '*/*':
               schema:
                 type: "object"
+  /api/test:
+    get:
+      description: ""
+      responses:
+        "200":
+          description: "OK"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Hello World!"
   /session/increment:
     get:
       description: ""

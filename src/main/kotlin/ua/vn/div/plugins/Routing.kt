@@ -14,11 +14,16 @@ fun Application.configureRouting() {
     install(Resources)
 
     routing {
-        get("/") {
-            call.respondText("Hello World!")
+
+        route("/api"){
+
+            get("/test") {
+                call.respondText("Hello World!")
+            }
+
+            itemEndpoint()
         }
 
-        itemEndpoint()
     }
 }
 
