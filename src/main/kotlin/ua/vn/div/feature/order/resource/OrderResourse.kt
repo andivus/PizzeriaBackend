@@ -12,17 +12,18 @@ import io.ktor.server.routing.*
 import org.koin.ktor.ext.inject
 import ua.vn.div.feature.order.domain.OrderRepository
 import ua.vn.div.feature.order.domain.model.OrderCreateRequest
-import ua.vn.div.feature.order.domain.model.OrderItemCreateRequest
 import ua.vn.div.feature.order.domain.model.OrderUpdateRequest
 import ua.vn.div.feature.order.domain.model.OrderUpdateStatusRequest
 
 @Resource("/orders")
 class Orders {
     @Resource("{id}")
-    class Order(val parent: Orders, val uuid: String) {
-
+    class Id(val parent: Orders, val id: String) {
         @Resource("items")
-        class Item(val order: Order, val id: String)
+        class Items(val parent: Id)
+        @Resource("status")
+        class Status(val parent: Id)
+
     }
 }
 
@@ -34,8 +35,8 @@ fun Route.orderEndpoint() {
         call.respond(result)
     }
 
-    get<Orders.Order> {
-        val result = orderRepository.getOrder(it.uuid)
+    get<Orders.Id> {
+        val result = orderRepository.getOrder(it.id)
         if (result != null) call.respond(HttpStatusCode.OK, result)
         else call.respond(HttpStatusCode.NotFound)
     }
@@ -44,47 +45,38 @@ fun Route.orderEndpoint() {
         val request = call.receive<OrderCreateRequest>()
         try {
             val result = orderRepository.createOrder(request)
-            call.respond(HttpStatusCode.OK, result)
-        } catch (e: Exception) {
-            call.respond(HttpStatusCode.InternalServerError)
-        }
-    }
-
-    put<Orders.Order>{
-        val request = call.receive<OrderUpdateRequest>()
-        try {
-            val result = orderRepository.updateOrder(it.uuid, request)
-            if (result != null) call.respond(HttpStatusCode.OK, result)
-            else call.respond(HttpStatusCode.NotFound)
-        } catch (e: Exception) {
-            call.respond(HttpStatusCode.InternalServerError)
-        }
-    }
-
-    put<Orders.Order>{
-        val request = call.receive<OrderUpdateStatusRequest>()
-        try {
-            val result = orderRepository.updateOrderStatus(it.uuid, request)
-            if (result != null) call.respond(HttpStatusCode.OK, result)
-            else call.respond(HttpStatusCode.NotFound)
-        } catch (e: Exception) {
-            call.respond(HttpStatusCode.InternalServerError)
-        }
-    }
-
-    get<Orders.Order.Item> {
-        val result = orderRepository.getAllOrderItems(it.order.uuid)
-        call.respond(result)
-    }
-
-    post<Orders.Order.Item> {
-        val request = call.receive<OrderItemCreateRequest>()
-        try {
-            val result = orderRepository.addOrderItem(it.order.uuid, it.id.toInt(), request)
-            if (result == null) call.respond(HttpStatusCode.InternalServerError)
+            if (result == null) call.respond(HttpStatusCode.NotFound)
             else call.respond(HttpStatusCode.OK, result)
         } catch (e: Exception) {
             call.respond(HttpStatusCode.InternalServerError)
         }
     }
+
+    put<Orders.Id>{
+        val request = call.receive<OrderUpdateRequest>()
+        try {
+            val result = orderRepository.updateOrder(it.id, request)
+            if (result != null) call.respond(HttpStatusCode.OK, result)
+            else call.respond(HttpStatusCode.NotFound)
+        } catch (e: Exception) {
+            call.respond(HttpStatusCode.InternalServerError)
+        }
+    }
+
+    put<Orders.Id.Status>{
+        val request = call.receive<OrderUpdateStatusRequest>()
+        try {
+            val result = orderRepository.updateOrderStatus(it.parent.id, request)
+            if (result != null) call.respond(HttpStatusCode.OK, result)
+            else call.respond(HttpStatusCode.NotFound)
+        } catch (e: Exception) {
+            call.respond(HttpStatusCode.InternalServerError)
+        }
+    }
+
+    get<Orders.Id.Items> {
+        val result = orderRepository.getAllOrderItems(it.parent.id)
+        call.respond(result)
+    }
+
 }

@@ -10,7 +10,7 @@ import ua.vn.div.feature.item.domain.model.ItemUpdateRequest
 class ItemRepositoryImpl : ItemRepository {
     override suspend fun getAllItems(): List<ItemDTO> {
         val items = newSuspendedTransaction {
-            return@newSuspendedTransaction Item.all().toList()
+            return@newSuspendedTransaction Item.all().sortedBy { i -> i.id }.toList()
         }
         return items.map { i -> i.toDTO() }
     }

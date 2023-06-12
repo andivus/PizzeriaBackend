@@ -28,8 +28,8 @@ fun Order.toDTO(): OrderDTO {
 
 fun OrderItem.toDTO(): OrderItemDTO {
     return OrderItemDTO(
-        itemId = this.item.value,
-        orderUuid = this.order.value.toString(),
+        itemId = this.item.id.value,
+        orderUuid = this.order.id.value.toString(),
         itemAmount = this.itemAmount,
     )
 }

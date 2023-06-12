@@ -4,6 +4,7 @@ import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
+import ua.vn.div.feature.item.data.Item
 import ua.vn.div.feature.item.data.ItemTable
 
 object OrderItemTable: IntIdTable(name = "order_items"){
@@ -19,7 +20,7 @@ object OrderItemTable: IntIdTable(name = "order_items"){
 
 class OrderItem(id: EntityID<Int>): IntEntity(id){
     companion object: IntEntityClass<OrderItem>(OrderItemTable)
-    var order by OrderTable.id
-    var item by ItemTable.id
+    var order by Order referencedOn OrderItemTable.order
+    var item by Item referencedOn OrderItemTable.item
     var itemAmount by OrderItemTable.itemAmount
 }

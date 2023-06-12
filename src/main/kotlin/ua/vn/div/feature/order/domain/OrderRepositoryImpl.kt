@@ -1,22 +1,21 @@
 package ua.vn.div.feature.order.domain
 
+import kotlinx.datetime.Clock
 import kotlinx.datetime.toJavaLocalDateTime
-import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import ua.vn.div.feature.item.data.Item
 import ua.vn.div.feature.order.data.Order
 import ua.vn.div.feature.order.data.OrderItem
 import ua.vn.div.feature.order.data.OrderItemTable
-import ua.vn.div.feature.order.data.OrderTable
 import ua.vn.div.feature.order.domain.mapper.toDTO
 import ua.vn.div.feature.order.domain.model.*
-import ua.vn.div.feature.order.resource.Orders
+import java.time.LocalDateTime
 import java.util.*
 
 class OrderRepositoryImpl : OrderRepository {
     override suspend fun getAllOrders(): List<OrderDTO> {
         val orders = newSuspendedTransaction {
-            return@newSuspendedTransaction Order.all().toList()
+            return@newSuspendedTransaction Order.all().sortedBy { i -> i.purchaseDate }.toList()
         }
         return orders.map { o -> o.toDTO() }
     }
@@ -27,10 +26,23 @@ class OrderRepositoryImpl : OrderRepository {
         }
     }
 
-    override suspend fun createOrder(request: OrderCreateRequest): OrderDTO {
+    override suspend fun createOrder(request: OrderCreateRequest): OrderDTO? { // TODO: Return errors |
         return newSuspendedTransaction {
-            return@newSuspendedTransaction Order.new {
-                this.purchaseDate = request.purchaseDate.toJavaLocalDateTime()
+
+            val cart = request.cart
+
+            var totalPrice = 0f
+
+            for (item in cart) {
+                val foundItem = Item.findById(item.key) ?: return@newSuspendedTransaction null
+
+                if (!foundItem.isActive || foundItem.stock < item.value || item.value < 1) return@newSuspendedTransaction null
+
+                totalPrice += item.value * foundItem.price
+            }
+
+            val order = Order.new {
+                this.purchaseDate = LocalDateTime.now()
                 this.firstName = request.firstName
                 this.lastName = request.lastName
                 this.email = request.email
@@ -39,11 +51,22 @@ class OrderRepositoryImpl : OrderRepository {
                 this.zipCode = request.zipCode
                 this.firstAddress = request.firstAddress
                 this.secondAddress = request.secondAddress
-                this.totalPrice = request.totalPrice
-                this.status = request.status
+                this.totalPrice = totalPrice
+                this.status = OrderStatusType.UNPAID.toString()
                 this.userIp = request.userIp
                 this.userAgent = request.userAgent
-            }.toDTO()
+            }
+
+            for (item in cart) {
+                Item.findById(item.key).apply { this!!.stock -= item.value }
+                OrderItem.new {
+                    this.item = Item.findById(item.key)!!
+                    this.order = order
+                    this.itemAmount = item.value
+                }
+            }
+
+            return@newSuspendedTransaction order.toDTO()
         }
     }
 
@@ -67,6 +90,13 @@ class OrderRepositoryImpl : OrderRepository {
 
     override suspend fun updateOrderStatus(uuid: String, request: OrderUpdateStatusRequest): OrderDTO? {
         val order = newSuspendedTransaction {
+
+            try {
+                OrderStatusType.valueOf(request.status.uppercase())
+            } catch (e: IllegalArgumentException) {
+                return@newSuspendedTransaction null
+            }
+
             return@newSuspendedTransaction Order.findById(UUID.fromString(uuid))?.apply {
                 this.status = request.status
             }
@@ -75,26 +105,12 @@ class OrderRepositoryImpl : OrderRepository {
     }
 
     override suspend fun getAllOrderItems(uuid: String): List<OrderItemDTO> {
-//        val orderItems = newSuspendedTransaction {
-//            val items = OrderItem.find { OrderItemTable.order eq uuid }.toList()
-//        }
-//        return orderItems.map { o -> o.toDTO() }
-        TODO("yes")
-    }
+        val orderItems = newSuspendedTransaction {
+            val order = Order.findById(UUID.fromString(uuid)) ?: return@newSuspendedTransaction null
+            val items = OrderItem.find { OrderItemTable.order eq order.id  }.sortedBy { orderItem -> orderItem.id }.toList()
+            return@newSuspendedTransaction items.map { i -> i.toDTO() }
+        } ?: return emptyList()
 
-    override suspend fun addOrderItem(uuid: String, id: Int, request: OrderItemCreateRequest): OrderItemDTO? {
-        return newSuspendedTransaction {
-            val item = Item.findById(request.orderItemDTO.itemId)
-            val order = Order.findById(UUID.fromString(request.orderItemDTO.orderUuid))
-
-            if (item == null || order == null)
-                return@newSuspendedTransaction null
-
-            return@newSuspendedTransaction OrderItem.new {
-                this.item = item.id
-                this.order = order.id
-                this.itemAmount = request.orderItemDTO.itemAmount
-            }.toDTO()
-        }
+        return orderItems
     }
 }

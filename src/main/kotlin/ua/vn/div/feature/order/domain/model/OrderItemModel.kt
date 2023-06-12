@@ -9,7 +9,3 @@ data class OrderItemDTO(
     val itemAmount: Int
 )
 
-@Serializable
-data class OrderItemCreateRequest(
-    val orderItemDTO: OrderItemDTO
-)

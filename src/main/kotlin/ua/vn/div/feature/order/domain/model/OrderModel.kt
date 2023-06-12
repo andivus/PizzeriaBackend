@@ -23,7 +23,6 @@ data class OrderDTO (
 
 @Serializable
 data class OrderCreateRequest(
-    val purchaseDate: LocalDateTime,
     val firstName: String,
     val lastName: String,
     val email: String,
@@ -32,10 +31,9 @@ data class OrderCreateRequest(
     val zipCode: Int,
     val firstAddress: String,
     val secondAddress: String?,
-    val totalPrice: Float,
-    val status: String,
     val userIp: String?,
-    val userAgent: String?
+    val userAgent: String?,
+    val cart: Map<Int, Int>
 )
 
 @Serializable
