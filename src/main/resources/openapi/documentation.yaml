@@ -6,6 +6,19 @@ info:
 servers:
 - url: "http://localhost:8080"
 paths:
+  /session/increment:
+    get:
+      description: ""
+      responses:
+        "200":
+          description: "OK"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: ""
   /api/items:
     get:
       description: ""
@@ -121,6 +134,159 @@ paths:
             '*/*':
               schema:
                 type: "object"
+  /api/orders:
+    get:
+      description: ""
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/OrderDTO"
+    post:
+      description: ""
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: "#/components/schemas/OrderCreateRequest"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderDTO"
+        "500":
+          description: "Internal Server Error"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+  /api/orders/{id}:
+    get:
+      description: ""
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "uuid"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderDTO"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+    put:
+      description: ""
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "uuid"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: "#/components/schemas/OrderUpdateRequest"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderDTO"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+        "500":
+          description: "Internal Server Error"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+  /api/orders/{id}/items:
+    get:
+      description: ""
+      parameters:
+      - name: "uuid"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/OrderItemDTO"
+    post:
+      description: ""
+      parameters:
+      - name: "uuid"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: "#/components/schemas/OrderItemCreateRequest"
+        required: true
+      responses:
+        "500":
+          description: "Internal Server Error"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderItemDTO"
   /api/test:
     get:
       description: ""
@@ -134,19 +300,6 @@ paths:
               examples:
                 Example#1:
                   value: "Hello World!"
-  /session/increment:
-    get:
-      description: ""
-      responses:
-        "200":
-          description: "OK"
-          content:
-            text/plain:
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: ""
   /json/kotlinx-serialization:
     get:
       description: ""
@@ -157,6 +310,15 @@ paths:
             '*/*':
               schema:
                 type: "string"
+  /{...}:
+    options:
+      description: ""
+      parameters:
+      - name: "..."
+        in: "path"
+        required: true
+        schema:
+          type: "string"
 components:
   schemas:
     ItemDTO:
@@ -207,3 +369,114 @@ components:
         stock:
           type: "integer"
           format: "int32"
+    LocalDateTime:
+      type: "object"
+      properties: {}
+    OrderDTO:
+      type: "object"
+      properties:
+        uuid:
+          type: "string"
+        purchaseDate:
+          $ref: "#/components/schemas/LocalDateTime"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        email:
+          type: "string"
+        phone:
+          type: "integer"
+          format: "int32"
+        city:
+          type: "string"
+        zipCode:
+          type: "integer"
+          format: "int32"
+        firstAddress:
+          type: "string"
+        secondAddress:
+          type: "string"
+        totalPrice:
+          type: "number"
+          format: "float"
+        status:
+          type: "string"
+        userIp:
+          type: "string"
+        userAgent:
+          type: "string"
+    OrderCreateRequest:
+      type: "object"
+      properties:
+        purchaseDate:
+          $ref: "#/components/schemas/LocalDateTime"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        email:
+          type: "string"
+        phone:
+          type: "integer"
+          format: "int32"
+        city:
+          type: "string"
+        zipCode:
+          type: "integer"
+          format: "int32"
+        firstAddress:
+          type: "string"
+        secondAddress:
+          type: "string"
+        totalPrice:
+          type: "number"
+          format: "float"
+        status:
+          type: "string"
+        userIp:
+          type: "string"
+        userAgent:
+          type: "string"
+    OrderUpdateRequest:
+      type: "object"
+      properties:
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        email:
+          type: "string"
+        phone:
+          type: "integer"
+          format: "int32"
+        city:
+          type: "string"
+        zipCode:
+          type: "integer"
+          format: "int32"
+        firstAddress:
+          type: "string"
+        secondAddress:
+          type: "string"
+        totalPrice:
+          type: "number"
+          format: "float"
+        status:
+          type: "string"
+    OrderItemDTO:
+      type: "object"
+      properties:
+        itemId:
+          type: "integer"
+          format: "int32"
+        orderUuid:
+          type: "string"
+        itemAmount:
+          type: "integer"
+          format: "int32"
+    OrderItemCreateRequest:
+      type: "object"
+      properties:
+        orderItemDTO:
+          $ref: "#/components/schemas/OrderItemDTO"

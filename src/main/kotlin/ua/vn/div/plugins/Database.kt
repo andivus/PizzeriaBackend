@@ -8,6 +8,8 @@ import org.koin.ktor.ext.inject
 import ua.vn.div.configuration.element.KtorConfig
 import ua.vn.div.database.DatabaseConnector
 import ua.vn.div.feature.item.data.ItemTable
+import ua.vn.div.feature.order.data.OrderItemTable
+import ua.vn.div.feature.order.data.OrderTable
 
 fun Application.configureDatabase(){
     val ktorConfig by inject<KtorConfig>()
@@ -16,7 +18,7 @@ fun Application.configureDatabase(){
 
     if (ktorConfig.development) {
         transaction {
-            val changes = SchemaUtils.statementsRequiredToActualizeScheme(ItemTable).joinToString("\n")
+            val changes = SchemaUtils.statementsRequiredToActualizeScheme(ItemTable, OrderTable, OrderItemTable).joinToString("\n")
             exposedLogger.info(if (changes.isNotBlank()) "Database schema needs to be updated with the following changes:\n$changes" else "Database schema is up to date")
         }
     }

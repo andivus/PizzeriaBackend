@@ -8,6 +8,7 @@ import io.ktor.server.resources.Resources
 import kotlinx.serialization.Serializable
 import io.ktor.server.application.*
 import ua.vn.div.feature.item.resource.itemEndpoint
+import ua.vn.div.feature.order.resource.orderEndpoint
 
 fun Application.configureRouting() {
 
@@ -22,6 +23,7 @@ fun Application.configureRouting() {
             }
 
             itemEndpoint()
+            orderEndpoint()
         }
 
     }

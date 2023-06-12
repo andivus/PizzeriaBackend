@@ -8,10 +8,13 @@ import ua.vn.div.database.DatabaseConnector
 import ua.vn.div.database.HikariDatabaseConnector
 import ua.vn.div.feature.item.domain.ItemRepository
 import ua.vn.div.feature.item.domain.ItemRepositoryImpl
+import ua.vn.div.feature.order.domain.OrderRepository
+import ua.vn.div.feature.order.domain.OrderRepositoryImpl
 
 val appModule = module {
     singleOf(::KtorConfig)
     singleOf(::HikariDatabaseConnector) bind DatabaseConnector::class
     singleOf(::ItemRepositoryImpl) bind ItemRepository::class
+    singleOf(::OrderRepositoryImpl) bind OrderRepository::class
 
 }
