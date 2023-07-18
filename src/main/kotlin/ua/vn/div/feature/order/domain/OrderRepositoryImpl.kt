@@ -26,7 +26,7 @@ class OrderRepositoryImpl : OrderRepository {
         }
     }
 
-    override suspend fun createOrder(request: OrderCreateRequest): OrderDTO? { // TODO: Return errors |
+    override suspend fun createOrder(request: OrderCreateRequest): OrderCreateResponse {
         return newSuspendedTransaction {
 
             val cart = request.cart
@@ -34,9 +34,11 @@ class OrderRepositoryImpl : OrderRepository {
             var totalPrice = 0f
 
             for (item in cart) {
-                val foundItem = Item.findById(item.key) ?: return@newSuspendedTransaction null
+                val foundItem = Item.findById(item.key) ?: return@newSuspendedTransaction OrderCreateResponse(status = OrderCreateResponse.StatusType.NOT_FOUND)
 
-                if (!foundItem.isActive || foundItem.stock < item.value || item.value < 1) return@newSuspendedTransaction null
+                if (!foundItem.isActive) return@newSuspendedTransaction OrderCreateResponse(status = OrderCreateResponse.StatusType.NOT_FOUND)
+
+                if (foundItem.stock < item.value || item.value < 1) return@newSuspendedTransaction OrderCreateResponse(status = OrderCreateResponse.StatusType.NO_ENOUGH_ITEMS)
 
                 totalPrice += item.value * foundItem.price
             }
@@ -66,7 +68,7 @@ class OrderRepositoryImpl : OrderRepository {
                 }
             }
 
-            return@newSuspendedTransaction order.toDTO()
+            return@newSuspendedTransaction OrderCreateResponse(orderDTO = order.toDTO())
         }
     }
 

@@ -37,6 +37,17 @@ data class OrderCreateRequest(
 )
 
 @Serializable
+data class OrderCreateResponse(
+    val orderDTO: OrderDTO? = null,
+    val status: StatusType? = null
+) {
+    enum class StatusType {
+        NOT_FOUND,
+        NO_ENOUGH_ITEMS,
+    }
+}
+
+@Serializable
 data class OrderUpdateRequest(
     val firstName: String,
     val lastName: String,

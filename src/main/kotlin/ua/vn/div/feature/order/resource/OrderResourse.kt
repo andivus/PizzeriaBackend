@@ -12,6 +12,7 @@ import io.ktor.server.routing.*
 import org.koin.ktor.ext.inject
 import ua.vn.div.feature.order.domain.OrderRepository
 import ua.vn.div.feature.order.domain.model.OrderCreateRequest
+import ua.vn.div.feature.order.domain.model.OrderCreateResponse
 import ua.vn.div.feature.order.domain.model.OrderUpdateRequest
 import ua.vn.div.feature.order.domain.model.OrderUpdateStatusRequest
 
@@ -45,8 +46,10 @@ fun Route.orderEndpoint() {
         val request = call.receive<OrderCreateRequest>()
         try {
             val result = orderRepository.createOrder(request)
-            if (result == null) call.respond(HttpStatusCode.NotFound)
-            else call.respond(HttpStatusCode.OK, result)
+            if (result.status == OrderCreateResponse.StatusType.NOT_FOUND) call.respond(HttpStatusCode.NotFound)
+            else if (result.status == OrderCreateResponse.StatusType.NO_ENOUGH_ITEMS) call.respond(HttpStatusCode.NoContent)
+            else if (result.orderDTO != null) call.respond(HttpStatusCode.OK, result.orderDTO)
+            else call.respond(HttpStatusCode.NotAcceptable)
         } catch (e: Exception) {
             call.respond(HttpStatusCode.InternalServerError)
         }
@@ -68,7 +71,7 @@ fun Route.orderEndpoint() {
         try {
             val result = orderRepository.updateOrderStatus(it.parent.id, request)
             if (result != null) call.respond(HttpStatusCode.OK, result)
-            else call.respond(HttpStatusCode.NotFound)
+            else call.respond(HttpStatusCode.BadRequest)
         } catch (e: Exception) {
             call.respond(HttpStatusCode.InternalServerError)
         }
