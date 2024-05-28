@@ -12,17 +12,12 @@ fun Order.toDTO(): OrderDTO {
         uuid = this.id.toString(),
         purchaseDate = this.purchaseDate.toKotlinLocalDateTime(),
         firstName = this.firstName,
-        lastName = this.lastName,
         email = this.email,
         phone = this.phone,
         city = this.city,
-        zipCode = this.zipCode,
         firstAddress = this.firstAddress,
-        secondAddress = this.secondAddress,
         totalPrice = this.totalPrice,
         status = this.status,
-        userIp = this.userIp,
-        userAgent = this.userAgent
     )
 }
 

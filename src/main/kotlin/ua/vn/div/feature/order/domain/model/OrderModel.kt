@@ -8,31 +8,21 @@ data class OrderDTO (
     val uuid: String,
     val purchaseDate: LocalDateTime,
     val firstName: String,
-    val lastName: String,
     val email: String,
-    val phone: Int,
+    val phone: String,
     val city: String,
-    val zipCode: Int,
     val firstAddress: String,
-    val secondAddress: String?,
     val totalPrice: Float,
     val status: String,
-    val userIp: String?,
-    val userAgent: String?
 )
 
 @Serializable
 data class OrderCreateRequest(
     val firstName: String,
-    val lastName: String,
     val email: String,
-    val phone: Int,
+    val phone: String,
     val city: String,
-    val zipCode: Int,
     val firstAddress: String,
-    val secondAddress: String?,
-    val userIp: String?,
-    val userAgent: String?,
     val cart: Map<Int, Int>
 )
 
@@ -42,21 +32,19 @@ data class OrderCreateResponse(
     val status: StatusType? = null
 ) {
     enum class StatusType {
-        NOT_FOUND,
+        ITEM_NOT_FOUND,
         NO_ENOUGH_ITEMS,
+        CART_IS_EMPTY
     }
 }
 
 @Serializable
 data class OrderUpdateRequest(
     val firstName: String,
-    val lastName: String,
     val email: String,
-    val phone: Int,
+    val phone: String,
     val city: String,
-    val zipCode: Int,
     val firstAddress: String,
-    val secondAddress: String?,
     val totalPrice: Float,
     val status: String,
 )

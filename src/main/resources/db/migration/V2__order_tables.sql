@@ -3,17 +3,12 @@ CREATE TABLE IF NOT EXISTS orders
     id             UUID PRIMARY KEY,
     purchase_date  TIMESTAMP NOT NULL,
     first_name     VARCHAR(256) NOT NULL,
-    last_name      VARCHAR(256) NOT NULL,
     email          VARCHAR(256) NOT NULL,
-    phone          INT NOT NULL,
+    phone          VARCHAR(9) NOT NULL,
     city           VARCHAR(256) NOT NULL,
-    zip_code       INT NOT NULL,
     first_address  TEXT NOT NULL,
-    second_address TEXT NULL,
     total_price    REAL NOT NULL,
-    status         VARCHAR(24) NOT NULL,
-    user_ip        VARCHAR(15) NULL,
-    user_agent     TEXT NULL
+    status         VARCHAR(24) NOT NULL
     );
 
 CREATE TABLE IF NOT EXISTS order_items

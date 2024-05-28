@@ -33,10 +33,12 @@ class OrderRepositoryImpl : OrderRepository {
 
             var totalPrice = 0f
 
-            for (item in cart) {
-                val foundItem = Item.findById(item.key) ?: return@newSuspendedTransaction OrderCreateResponse(status = OrderCreateResponse.StatusType.NOT_FOUND)
+            if (cart.isEmpty()) return@newSuspendedTransaction OrderCreateResponse(status = OrderCreateResponse.StatusType.CART_IS_EMPTY)
 
-                if (!foundItem.isActive) return@newSuspendedTransaction OrderCreateResponse(status = OrderCreateResponse.StatusType.NOT_FOUND)
+            for (item in cart) {
+                val foundItem = Item.findById(item.key) ?: return@newSuspendedTransaction OrderCreateResponse(status = OrderCreateResponse.StatusType.ITEM_NOT_FOUND)
+
+                if (!foundItem.isActive) return@newSuspendedTransaction OrderCreateResponse(status = OrderCreateResponse.StatusType.ITEM_NOT_FOUND)
 
                 if (foundItem.stock < item.value || item.value < 1) return@newSuspendedTransaction OrderCreateResponse(status = OrderCreateResponse.StatusType.NO_ENOUGH_ITEMS)
 
@@ -46,23 +48,19 @@ class OrderRepositoryImpl : OrderRepository {
             val order = Order.new {
                 this.purchaseDate = LocalDateTime.now()
                 this.firstName = request.firstName
-                this.lastName = request.lastName
                 this.email = request.email
                 this.phone = request.phone
                 this.city = request.city
-                this.zipCode = request.zipCode
                 this.firstAddress = request.firstAddress
-                this.secondAddress = request.secondAddress
                 this.totalPrice = totalPrice
                 this.status = OrderStatusType.UNPAID.toString()
-                this.userIp = request.userIp
-                this.userAgent = request.userAgent
             }
 
             for (item in cart) {
-                Item.findById(item.key).apply { this!!.stock -= item.value }
+                val _item = Item.findById(item.key)!!
+                item.apply { _item.stock -= item.value }
                 OrderItem.new {
-                    this.item = Item.findById(item.key)!!
+                    this.item = _item
                     this.order = order
                     this.itemAmount = item.value
                 }
@@ -76,13 +74,10 @@ class OrderRepositoryImpl : OrderRepository {
         val order = newSuspendedTransaction {
             return@newSuspendedTransaction Order.findById(UUID.fromString(uuid))?.apply {
                 this.firstName = request.firstName
-                this.lastName = request.lastName
                 this.email = request.email
                 this.phone = request.phone
                 this.city = request.city
-                this.zipCode = request.zipCode
                 this.firstAddress = request.firstAddress
-                this.secondAddress = request.secondAddress
                 this.totalPrice = request.totalPrice
                 this.status = request.status
             }

@@ -4,5 +4,6 @@ enum class OrderStatusType {
     PAID,
     UNPAID,
     CANCELED,
-    DONE
+    DONE,
+    PROCESSING
 }
