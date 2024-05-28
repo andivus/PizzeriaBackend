@@ -46,8 +46,9 @@ fun Route.orderEndpoint() {
         val request = call.receive<OrderCreateRequest>()
         try {
             val result = orderRepository.createOrder(request)
-            if (result.status == OrderCreateResponse.StatusType.NOT_FOUND) call.respond(HttpStatusCode.NotFound)
-            else if (result.status == OrderCreateResponse.StatusType.NO_ENOUGH_ITEMS) call.respond(HttpStatusCode.NoContent)
+            if (result.status == OrderCreateResponse.StatusType.NO_ENOUGH_ITEMS) call.respond(HttpStatusCode.NotAcceptable)
+            else if (result.status == OrderCreateResponse.StatusType.ITEM_NOT_FOUND) call.respond(HttpStatusCode.BadRequest)
+            else if (result.status == OrderCreateResponse.StatusType.CART_IS_EMPTY) call.respond(HttpStatusCode.NoContent)
             else if (result.orderDTO != null) call.respond(HttpStatusCode.OK, result.orderDTO)
             else call.respond(HttpStatusCode.NotAcceptable)
         } catch (e: Exception) {
