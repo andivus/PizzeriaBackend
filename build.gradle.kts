@@ -31,6 +31,7 @@ repositories {
 dependencies {
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-resources:$ktor_version")
+    implementation("io.ktor:ktor-server-auth-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktor_version")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktor_version")
     implementation("io.ktor:ktor-server-cors-jvm:$ktor_version")
@@ -56,10 +57,15 @@ dependencies {
     implementation("com.zaxxer:HikariCP:$hikari_version")
 
     implementation("org.flywaydb:flyway-core:$flyway_verison")
+    implementation("org.flywaydb:flyway-database-postgresql:$flyway_verison")
 
     implementation("io.insert-koin:koin-ktor:$koin_version")
     implementation("io.insert-koin:koin-logger-slf4j:$koin_version")
     testImplementation("io.ktor:ktor-server-test-host-jvm:2.3.1")
 
     implementation("at.favre.lib:bcrypt:0.10.2")
+}
+
+kotlin {
+    jvmToolchain(21)
 }

@@ -2,13 +2,11 @@ package me.dev.plugins
 
 import io.ktor.server.routing.*
 import io.ktor.server.response.*
-import io.ktor.server.resources.*
-import io.ktor.resources.*
 import io.ktor.server.resources.Resources
-import kotlinx.serialization.Serializable
 import io.ktor.server.application.*
 import me.dev.feature.item.resource.itemEndpoint
 import me.dev.feature.order.resource.orderEndpoint
+import me.dev.feature.user.resource.userEndpoint
 
 fun Application.configureRouting() {
 
@@ -24,6 +22,7 @@ fun Application.configureRouting() {
 
             itemEndpoint()
             orderEndpoint()
+            userEndpoint()
         }
 
     }

@@ -3,6 +3,7 @@ package me.dev.feature.item.resource
 import io.ktor.http.*
 import io.ktor.resources.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.resources.*
 import io.ktor.server.resources.post
@@ -23,7 +24,40 @@ class Items {
 fun Route.itemEndpoint() {
     val itemRepository by inject<ItemRepository>()
 
-    get<Items>{
+    authenticate("token") {
+        post<Items> {
+            val request = call.receive<ItemCreateRequest>()
+            try {
+                val result = itemRepository.createItem(request)
+                call.respond(HttpStatusCode.OK, result)
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.InternalServerError)
+            }
+        }
+
+        put<Items.Id> {
+            val request = call.receive<ItemUpdateRequest>()
+            try {
+                val result = itemRepository.updateItem(it.id, request)
+                if (result != null) call.respond(HttpStatusCode.OK, result)
+                else call.respond(HttpStatusCode.NotFound)
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.InternalServerError)
+            }
+        }
+
+        delete<Items.Id> {
+            try {
+                val result = itemRepository.removeItem(it.id)
+                if (result != null) call.respond(HttpStatusCode.OK, result)
+                else call.respond(HttpStatusCode.NotFound)
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.InternalServerError)
+            }
+        }
+    }
+
+    get<Items> {
         val result = itemRepository.getAllItems()
         call.respond(result)
     }
@@ -34,34 +68,4 @@ fun Route.itemEndpoint() {
         else call.respond(HttpStatusCode.NotFound)
     }
 
-    post<Items>{
-        val request = call.receive<ItemCreateRequest>()
-        try {
-            val result = itemRepository.createItem(request)
-            call.respond(HttpStatusCode.OK, result)
-        } catch (e: Exception) {
-            call.respond(HttpStatusCode.InternalServerError)
-        }
-    }
-
-    put<Items.Id>{
-        val request = call.receive<ItemUpdateRequest>()
-        try {
-            val result = itemRepository.updateItem(it.id, request)
-            if (result != null) call.respond(HttpStatusCode.OK, result)
-            else call.respond(HttpStatusCode.NotFound)
-        } catch (e: Exception) {
-            call.respond(HttpStatusCode.InternalServerError)
-        }
-    }
-
-    delete<Items.Id>{
-        try {
-            val result = itemRepository.removeItem(it.id)
-            if (result != null) call.respond(HttpStatusCode.OK, result)
-            else call.respond(HttpStatusCode.NotFound)
-        } catch (e: Exception) {
-            call.respond(HttpStatusCode.InternalServerError)
-        }
-    }
 }
