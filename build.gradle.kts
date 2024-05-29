@@ -10,9 +10,9 @@ val koin_version: String by project
 val kotlinx_datetime_version: String by project
 
 plugins {
-    kotlin("jvm") version "1.8.22"
-    id("io.ktor.plugin") version "2.3.1"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
+    kotlin("jvm") version "2.0.0"
+    id("io.ktor.plugin") version "2.3.11"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0"
 }
 
 group = "me.dev"
@@ -60,4 +60,6 @@ dependencies {
     implementation("io.insert-koin:koin-ktor:$koin_version")
     implementation("io.insert-koin:koin-logger-slf4j:$koin_version")
     testImplementation("io.ktor:ktor-server-test-host-jvm:2.3.1")
+
+    implementation("at.favre.lib:bcrypt:0.10.2")
 }
