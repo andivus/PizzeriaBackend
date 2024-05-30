@@ -45,7 +45,6 @@ data class OrderUpdateRequest(
     val phone: String,
     val city: String,
     val firstAddress: String,
-    val totalPrice: Float,
     val status: String,
 )
 

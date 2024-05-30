@@ -38,17 +38,30 @@ data class UserCreateResponse(
 }
 
 @Serializable
-data class UserUpdateInfoRequest(
-    val username: String,
-    val firstName: String,
-    val secondName: String,
-    val email: String,
+data class UserUpdateRequest(
+    val username: String? = null,
+    val firstName: String? = null,
+    val secondName: String? = null,
+    val email: String? = null,
+    val password: String? = null,
 )
 
 @Serializable
-data class UserUpdateCredRequest(
-    val password: String
-)
+data class UserUpdateResponse(
+    val userDTO: UserDTO? = null,
+    val status: StatusType? = null
+) {
+    enum class StatusType {
+        USERNAME_ALREADY_IN_USE,
+        EMAIL_ALREADY_IN_USE,
+        BAD_USERNAME,
+        BAD_MAIL,
+        BAD_PASSWORD,
+        BAD_NAME,
+        NOT_FOUND
+    }
+}
+
 
 @Serializable
 data class UserLoginRequest(
@@ -58,10 +71,12 @@ data class UserLoginRequest(
 
 @Serializable
 data class UserLoginResponse(
-    val token: String
+    val token: String,
+    val userDTO: UserDTO
 )
 
 @Serializable
 data class GetTokenValidityResponse(
-    val validTime: LocalDateTime
+    val validTime: LocalDateTime,
+    val userId: String?
 )

@@ -20,22 +20,24 @@ import org.koin.ktor.ext.inject
 class Users {
     @Resource("{id}")
     class Id(val parent: Users, val id: String)
+}
 
+@Resource("/session")
+class Session {
     @Resource("login")
-    class Login(val parent: Users)
+    class Login(val parent: Session)
 
     @Resource("logout")
-    class Logout(val parent: Users)
+    class Logout(val parent: Session)
 
     @Resource("token")
-    class Token(val parent: Users)
-
+    class Token(val parent: Session)
 }
 
 fun Route.userEndpoint() {
     val userRepository by inject<UserRepository>()
 
-    post<Users.Login> {
+    post<Session.Login> {
         val request = call.receive<UserLoginRequest>()
         try {
             val result = userRepository.loginUser(request)
@@ -79,26 +81,23 @@ fun Route.userEndpoint() {
         }
 
         patch<Users.Id> {
-            val request = call.receive<UserUpdateInfoRequest>()
+            val request = call.receive<UserUpdateRequest>()
             try {
-                val result = userRepository.updateUserInfo(it.id, request)
+                val result = userRepository.updateUser(it.id, request)
 
-                if (result != null) call.respond(HttpStatusCode.OK, result)
+                if (
+                    result.status == UserUpdateResponse.StatusType.USERNAME_ALREADY_IN_USE ||
+                    result.status == UserUpdateResponse.StatusType.EMAIL_ALREADY_IN_USE
+                )
+                    call.respond(HttpStatusCode.BadRequest, result.status)
 
-                else call.respond(HttpStatusCode.BadRequest)
-            } catch (e: Exception) {
-                call.respond(HttpStatusCode.InternalServerError)
-            }
-        }
+                else if (result.status == UserUpdateResponse.StatusType.NOT_FOUND)
+                    call.respond(HttpStatusCode.NotFound, result.status)
 
-        put<Users.Id> {
-            val request = call.receive<UserUpdateCredRequest>()
-            try {
-                val result = userRepository.updateUserCred(it.id, request)
+                else if (result.status != null) call.respond(HttpStatusCode.BadRequest, result.status)
+                else if (result.userDTO != null) call.respond(HttpStatusCode.OK, result)
 
-                if (result != null) call.respond(HttpStatusCode.OK, result)
-
-                else call.respond(HttpStatusCode.BadRequest)
+                else call.respond(HttpStatusCode.NotAcceptable)
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.InternalServerError)
             }
@@ -116,7 +115,7 @@ fun Route.userEndpoint() {
             }
         }
 
-        post<Users.Logout> {
+        post<Session.Logout> {
             try {
                 val token = this.context.request.authorization()!!
 
@@ -128,10 +127,10 @@ fun Route.userEndpoint() {
             }
         }
 
-        post<Users.Token> {
+        get<Session.Token> {
             try {
                 val token = this.context.request.authorization()!!
-                val result = userRepository.getTokenValidity(token)
+                val result = userRepository.getTokenValidity(token.substring(7, token.length))
 
                 call.respond(HttpStatusCode.OK, result)
             } catch (e: Exception) {

@@ -7,7 +7,7 @@ class UserDataValidatorServiceImpl : UserDataValidatorService {
     }
 
     override fun validateFirstOrSecondName(name: String): Boolean {
-        return name.matches(Regex("^[a-zA-Z]{1,64}\$"))
+        return name.length in 1..64
     }
 
     override fun validateEmail(name: String): Boolean {

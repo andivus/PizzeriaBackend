@@ -6,8 +6,7 @@ interface UserRepository {
     suspend fun getAllUsers(): List<UserDTO>
     suspend fun getUser(uuid: String): UserDTO?
     suspend fun createUser(request: UserCreateRequest): UserCreateResponse
-    suspend fun updateUserInfo(uuid: String, request: UserUpdateInfoRequest): UserDTO?
-    suspend fun updateUserCred(uuid: String, request: UserUpdateCredRequest): UserDTO?
+    suspend fun updateUser(uuid: String, request: UserUpdateRequest): UserUpdateResponse
     suspend fun removeUser(uuid: String): UserDTO?
     suspend fun loginUser(request: UserLoginRequest): UserLoginResponse?
     suspend fun logoutUser(token: String)

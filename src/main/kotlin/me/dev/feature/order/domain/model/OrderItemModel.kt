@@ -9,7 +9,8 @@ data class OrderItemDTO(
     val orderUuid: String,
 )
 
-@Serializable class OrderItemInfo(
+@Serializable
+data class OrderItemInfo(
     val itemId: Int,
     val itemAmount: Int,
     val name: String,

@@ -79,7 +79,6 @@ class OrderRepositoryImpl : OrderRepository {
                 this.phone = request.phone
                 this.city = request.city
                 this.firstAddress = request.firstAddress
-                this.totalPrice = request.totalPrice
                 this.status = request.status
             }
         }
@@ -105,22 +104,21 @@ class OrderRepositoryImpl : OrderRepository {
     override suspend fun getAllOrderItems(uuid: String): List<OrderItemInfo> {
         val orderItems = newSuspendedTransaction {
             val order = Order.findById(UUID.fromString(uuid)) ?: return@newSuspendedTransaction null
-            val orderItems = OrderItem.find { OrderItemTable.order eq order.id  }.sortedBy { orderItem -> orderItem.id }.toList()
-            val items = Item.find { ItemTable.id inList orderItems.map { a -> a.id }.toList() }
+            val orderItems = OrderItem.find { OrderItemTable.order eq order.id }
+            val items = Item.find { ItemTable.id inList orderItems.map { it.item.id } }.toList()
 
-            val resItems = emptyList<OrderItemInfo>().toMutableList()
+            val resList = emptyList<OrderItemInfo>().toMutableList()
 
-            orderItems.forEach { i ->
-                val item = items.find { it.id == i.id }!!
-                resItems += OrderItemInfo(
-                    itemId = i.id.value,
-                    itemAmount = i.itemAmount,
-                    name = item.name,
-                    imageUrl = item.imageUrl,
+            orderItems.forEach { orderItem ->
+                resList += OrderItemInfo(
+                    itemId = orderItem.item.id.value,
+                    itemAmount = orderItem.itemAmount,
+                    name = items.find { it.id == orderItem.item.id }?.name ?: "Item Name",
+                    imageUrl = items.find { it.id == orderItem.item.id }?.imageUrl ?: "",
                 )
             }
 
-            return@newSuspendedTransaction resItems
+            return@newSuspendedTransaction resList
         } ?: return emptyList()
 
         return orderItems
