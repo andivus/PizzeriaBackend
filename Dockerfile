@@ -7,8 +7,8 @@ FROM amazoncorretto:22-alpine3.19
 
 RUN mkdir /app
 
-COPY --from=build /home/gradle/src/build/libs/ /app/
+COPY --from=build /home/gradle/src/build/libs /app/
 
 EXPOSE 8080
 
-ENTRYPOINT ["java","-jar","/app/Pizzeria-all.jar"]
+ENTRYPOINT ["java","-jar","/app/Pizzeria-all.jar","-config=/app/application.conf"]
