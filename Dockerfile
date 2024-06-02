@@ -9,4 +9,6 @@ RUN mkdir /app
 
 COPY --from=build /home/gradle/src/build/libs/ /app/
 
+EXPOSE 8080
+
 ENTRYPOINT ["java","-jar","/app/Pizzeria-all.jar"]
