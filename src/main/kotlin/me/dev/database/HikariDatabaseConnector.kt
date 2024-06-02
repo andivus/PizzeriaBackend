@@ -26,6 +26,7 @@ class HikariDatabaseConnector(private val config: KtorConfig) : DatabaseConnecto
         Flyway.configure()
             .baselineOnMigrate(true)
             .dataSource(hikariDataSource)
+            .locations("db/migration", "classpath:db/migration")
             .load()
             .migrate()
     }
