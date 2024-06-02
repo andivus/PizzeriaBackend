@@ -8,6 +8,7 @@ FROM amazoncorretto:22-alpine3.19
 RUN mkdir /app
 
 COPY --from=build /home/gradle/src/build/libs /app/
+COPY --from=build /home/gradle/src/build/resources /app/
 
 EXPOSE 8080
 
